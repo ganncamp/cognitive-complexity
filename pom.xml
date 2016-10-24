@@ -123,7 +123,7 @@
         <version>1.15</version>
         <extensions>true</extensions>
         <configuration>
-          <pluginClass>com.sonarsource.rules.CognitiveComplexityRulesPlugin</pluginClass>
+          <pluginClass>com.sonarsource.rules.java.JavaCustomRulesPlugin</pluginClass>
         </configuration>
       </plugin>
 
