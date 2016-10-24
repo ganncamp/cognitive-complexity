@@ -58,6 +58,23 @@
     </dependency>
 
     <dependency>
+        <groupId>com.sonarsource.cobol</groupId>
+        <artifactId>sonar-cobol-plugin</artifactId>
+        <version>3.2</version>
+        <scope>system</scope>
+        <systemPath>${basedir}/lib/sonar-cobol-plugin.jar</systemPath>
+    </dependency>
+
+    <dependency>
+        <groupId>com.sonarsource.cobol</groupId>
+        <artifactId>cobol-testing-harness</artifactId>
+        <version>3.2</version>
+        <scope>system</scope>
+        <systemPath>${basedir}/lib/cobol-testing-harness.jar</systemPath>
+    </dependency>
+
+
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>1.6.2</version>
@@ -106,7 +123,7 @@
         <version>1.15</version>
         <extensions>true</extensions>
         <configuration>
-          <pluginClass>com.sonarsource.rules.java.JavaCustomRulesPlugin</pluginClass>
+          <pluginClass>com.sonarsource.rules.CognitiveComplexityRulesPlugin</pluginClass>
         </configuration>
       </plugin>
 

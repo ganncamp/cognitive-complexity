@@ -16,7 +16,7 @@ class CognitiveComplexityCheck {
     return result;
   }
 
-  private static String getValueToEval( List<String> strings ) { // Noncompliant {{The Cognitive Complexity of this method "getValueToEval" is 5 which is greater than 0 authorized.}}
+  private static String getValueToEval( List<String> strings ) { // Noncompliant {{The Cognitive Complexity of this method "getValueToEval" is 6 which is greater than 0 authorized.}}
 
     if (Measure.Level.ERROR.equals(alertLevel) && foo = YELLOW) {
       return condition.getErrorThreshold();
@@ -30,7 +30,7 @@ class CognitiveComplexityCheck {
     }
   }
 
-  boolean isPalindrome(char [] s, int len) { // Noncompliant {{The Cognitive Complexity of this method "isPalindrome" is 1 which is greater than 0 authorized.}}
+  boolean isPalindrome(char [] s, int len) { // Noncompliant {{The Cognitive Complexity of this method "isPalindrome" is 2 which is greater than 0 authorized.}}
 
     if(len < 2)
       return true;
