@@ -204,11 +204,16 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
     StatementTree elseStatement = ((IfStatementTree) st).elseStatement();
 
     total++;
-    addSecondaryLocation(flow, elseStatement, total, nestingLevel);
 
     if (elseStatement.is(Kind.IF_STATEMENT)) {
+      addSecondaryLocation(flow, elseStatement, total, nestingLevel);
+
       total += countConditions(((IfStatementTree) elseStatement).condition() );
       total += countIfElseChains(elseStatement, flow, nestingLevel);
+    } else {
+      // `else`
+      total += nestingLevel;
+      addSecondaryLocation(flow, elseStatement, total, nestingLevel);
     }
 
     List<StatementTree> children = getChildren(elseStatement);

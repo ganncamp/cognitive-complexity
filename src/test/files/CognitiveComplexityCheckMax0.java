@@ -1,6 +1,29 @@
 class CognitiveComplexityCheck {
 
 
+
+  public void switch2(){ // Noncompliant {{The Cognitive Complexity of this method "switch2" is 15 which is greater than 0 authorized.}}
+
+    switch(foo){                              //+1
+      case 1:
+        break;
+      case ASSIGNMENT:
+        if (lhs.is(Tree.Kind.IDENTIFIER)) {   //+2 (nesting=1)
+          if (a && b && c || d) {             //+6 (nesting=2)
+
+          }
+
+          if(element.is(Tree.Kind.ASSIGNMENT)) { //+3 (nesting=2)
+            out.remove(symbol);
+          } else {                               //+3 (nesting=2)
+            out.add(symbol);
+          }
+        }
+        break;
+    }
+  }
+
+
   public void doFilter(ServletRequest servletRequest) { // Noncompliant {{The Cognitive Complexity of this method "doFilter" is 13 which is greater than 0 authorized.}}
 
     if (consumedByStaticFile) {
