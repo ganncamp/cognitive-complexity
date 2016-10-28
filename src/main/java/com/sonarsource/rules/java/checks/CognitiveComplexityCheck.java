@@ -43,7 +43,7 @@ import static org.sonar.plugins.java.api.tree.Tree.Kind.*;
       name = "Cognitive Complexity of methods should not be too high",
       description = "[Something profound and moving here...]",
       priority = Priority.CRITICAL,
-      tags = ("brainoverload"))
+      tags = "brainoverload")
 public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
 
   private static final int DEFAULT_MAX = 10;
@@ -130,6 +130,10 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
   }
 
   private void addSecondaryLocation(List<JavaFileScannerContext.Location> flow, Tree st, int hit,  int nestingLevel) {
+
+    if (st == null) {
+      return;
+    }
 
     Tree tree = st;
 
