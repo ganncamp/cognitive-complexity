@@ -61,7 +61,7 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
           .add(FOR_EACH_STATEMENT)
           .add(DO_STATEMENT)
           .add(WHILE_STATEMENT)
-.add(SWITCH_STATEMENT)
+          .add(SWITCH_STATEMENT)
 //          .add(TERNARY_OP)
           .build();
 
@@ -154,6 +154,12 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
         break;
       case LAMBDA_EXPRESSION:
         tree = ((LambdaExpressionTree) st).arrowToken();
+        break;
+      case CATCH:
+        tree = ((CatchTree) st).catchKeyword();
+        break;
+      case BLOCK:
+        tree = ((BlockTree)st).openBraceToken();
         break;
     }
 
@@ -256,6 +262,7 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
 
       List<CatchTree> catches = tryStatment.catches();
       for (CatchTree catchTree : catches) {
+        total++;
         total += nestingLevel;
         addSecondaryLocation(flow, catchTree, total, nestingLevel);
         total += countComplexity(catchTree.block().body(), flow, nestingLevel +1);
@@ -309,38 +316,72 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
 
   private List<StatementTree> getChildren(Tree st) {
 
+    StatementTree statementTree = null;
+
     switch (st.kind()) {
-      case METHOD:
-        return ((MethodTree) st).block().body();
-      case IF_STATEMENT:
-        if (((IfStatementTree) st).thenStatement().is(Kind.BLOCK)) {
-          return ((BlockTree) ((IfStatementTree) st).thenStatement()).body();
-        }
-        return null;
-      case FOR_EACH_STATEMENT:
-        return ((BlockTree)((ForEachStatement) st).statement()).body();
-      case FOR_STATEMENT:
-        return ((BlockTree)((ForStatementTree) st).statement()).body();
-      case DO_STATEMENT:
-        return ((BlockTree)((DoWhileStatementTree) st).statement()).body();
-      case WHILE_STATEMENT:
-        return ((BlockTree)((WhileStatementTree) st).statement()).body();
-      case LAMBDA_EXPRESSION:
-        return ((BlockTree)((LambdaExpressionTree) st).body()).body();
       case SWITCH_STATEMENT:
         List<StatementTree> children = new ArrayList<>();
         for(CaseGroupTree cgt : ((SwitchStatementTree) st).cases()) {
           children.addAll(cgt.body());
         }
         return children;
+
       case TRY_STATEMENT:
         return ((TryStatementTree) st).block().body();
+
+      case LAMBDA_EXPRESSION:
+        Tree tree = ((LambdaExpressionTree) st).body();
+        if (tree.is(BLOCK)) {
+          statementTree = (StatementTree) tree;
+        }
+        break;
+
+      case METHOD:
+        statementTree = ((MethodTree) st).block();
+        break;
+
+      case IF_STATEMENT:
+        statementTree = ((IfStatementTree) st).thenStatement();
+        break;
+
+      case FOR_EACH_STATEMENT:
+        statementTree = ((ForEachStatement) st).statement();
+        break;
+
+      case FOR_STATEMENT:
+        statementTree =((ForStatementTree) st).statement();
+        break;
+
+      case DO_STATEMENT:
+        statementTree = ((DoWhileStatementTree) st).statement();
+        break;
+
+      case WHILE_STATEMENT:
+        statementTree = ((WhileStatementTree) st).statement();
+        break;
+
       case BLOCK:
         // final `else` clause
-        return ((BlockTree) st).body();
+        statementTree = (StatementTree) st;
+        break;
+
       default:
-        return null;
+        break;
     }
+
+
+    if (statementTree == null) {
+      return null;
+    }
+
+    if (statementTree.is(Kind.BLOCK)) {
+      return ((BlockTree) statementTree).body();
+    } else {
+      List<StatementTree> list = new ArrayList<>();
+      list.add(statementTree);
+      return list;
+    }
+
   }
 
   public void setMax(int max) {

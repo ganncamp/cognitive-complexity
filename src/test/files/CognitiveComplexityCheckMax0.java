@@ -1,15 +1,78 @@
 class CognitiveComplexityCheck {
 
-  String bulkActivate(Iterator<String> rules) { // Noncompliant {{The Cognitive Complexity of this method "bulkActivate" is 5 which is greater than 0 authorized.}}
+
+  public void doFilter(ServletRequest servletRequest) { // Noncompliant {{The Cognitive Complexity of this method "doFilter" is 13 which is greater than 0 authorized.}}
+
+    if (consumedByStaticFile) {
+      return;
+    }
 
     try {
-      while (rules.hasNext()) {  //
+
+    } catch (HaltException halt) {
+
+    } catch (Exception generalException) {
+
+    }
+
+    if (body.notSet() && responseWrapper.isRedirected()) {
+      body.set("");
+    }
+
+    if (body.notSet() && hasOtherHandlers) {
+      if (servletRequest instanceof HttpRequestWrapper) {
+        ((HttpRequestWrapper) servletRequest).notConsumed(true);
+        return;
+      }
+    }
+
+    if (body.notSet() && !externalContainer) {
+      LOG.info("The requested route [" + uri + "] has not been mapped in Spark");
+    }
+
+    if (body.isSet()) {
+      body.serializeTo(httpResponse, serializerChain, httpRequest);
+    } else if (chain != null) {
+      chain.doFilter(httpRequest, httpResponse);
+    }
+  }
+
+
+  public final T to(U u) { // Noncompliant {{The Cognitive Complexity of this method "to" is 7 which is greater than 0 authorized.}}
+
+    for (int ctr=0; ctr<args.length; ctr++)
+      if (args[ctr].equals("-debug"))
+        debug = true ;
+
+    for (int i = chain.length - 1; i >= 0; i--)
+      result = chain[i].to(result);
+
+    if (foo)
+      for (int i = 0; i < 10; i++)
+        doTheThing();
+
+    return (T) result;
+  }
+
+
+  static boolean enforceLimits(BoundTransportAddress boundTransportAddress) {
+    Iterable<JoinTuple> itr = () -> new JoinTupleIterator(tuples.tuples(), parentIndex, parentReference);
+
+    Predicate<TransportAddress> isLoopbackOrLinkLocalAddress = t -> t.address().getAddress().isLinkLocalAddress()
+            || t.address().getAddress().isLoopbackAddress();
+
+  }
+
+  String bulkActivate(Iterator<String> rules) { // Noncompliant {{The Cognitive Complexity of this method "bulkActivate" is 6 which is greater than 0 authorized.}}
+
+    try {
+      while (rules.hasNext()) {  // +1
         try {
-          if (!changes.isEmpty()) {  }  //
-        } catch (BadRequestException e) { }  //
+          if (!changes.isEmpty()) {  }  // +2, nesting 1
+        } catch (BadRequestException e) { }  // +2, nesting 1
       }
     } finally {
-      if (condition) {
+      if (condition) {  // +1
         doTheThing();
       }
     }
@@ -115,8 +178,9 @@ class CognitiveComplexityCheck {
   public static HighlightingType toProtocolType(TypeOfText textType) { // Noncompliant {{The Cognitive Complexity of this method "toProtocolType" is 1 which is greater than 0 authorized.}}
 
     switch (textType) {
-      case ANNOTATION:
+      case ANNOTATION: {
         return HighlightingType.ANNOTATION;
+      }
       case CONSTANT:
         return HighlightingType.CONSTANT;
       case CPP_DOC:
