@@ -226,6 +226,10 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
   private int countConditions(ExpressionTree expressionTree) {
     int total = 0;
 
+    if (expressionTree == null) {
+      return total;
+    }
+
     ExpressionTree tree = expressionTree;
     if (expressionTree.is(ASSIGNMENT)) {
       tree = ((AssignmentExpressionTree) tree).variable();
