@@ -62,7 +62,6 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
           .add(DO_STATEMENT)
           .add(WHILE_STATEMENT)
           .add(SWITCH_STATEMENT)
-//          .add(TERNARY_OP)
           .build();
 
 
@@ -181,7 +180,7 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
     if (st.is(Kind.CLASS) && ! ((ClassTree)st).members().isEmpty()) {
 
       for (Tree member : ((ClassTree) st).members()) {
-        if (member.is(Kind.METHOD)) {
+        if (member.is(Kind.METHOD) && ((MethodTree) member).block().body() != null) {
           total += countComplexity(((MethodTree) member).block().body(), flow, nestingLevel+1);
         }
       }
@@ -302,11 +301,8 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
   }
 
   private int countBreakAndContinue(Tree st, List<JavaFileScannerContext.Location> flow) {
-    if (st.is(BREAK_STATEMENT) && ((BreakStatementTree) st).label() != null) {
-      flow.add(new JavaFileScannerContext.Location("+1", st));
-      return 1;
-
-    } else if (st.is(CONTINUE_STATEMENT) && ((ContinueStatementTree) st).label() != null) {
+    if ( (st.is(BREAK_STATEMENT) && ((BreakStatementTree) st).label() != null)
+            || (st.is(CONTINUE_STATEMENT) && ((ContinueStatementTree) st).label() != null) ) {
       flow.add(new JavaFileScannerContext.Location("+1", st));
       return 1;
 
@@ -396,7 +392,7 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
 
 
     if (statementTree == null) {
-      return null;
+      return new ArrayList<>();
     }
 
     if (statementTree.is(Kind.BLOCK)) {
