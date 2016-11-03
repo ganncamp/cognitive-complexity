@@ -1,5 +1,14 @@
 class CognitiveComplexityCheck {
 
+
+  public int ternaryOp(int a, int b) { // Noncompliant {{The Cognitive Complexity of this method "ternaryOp" is 2 which is greater than 0 authorized.}}
+
+    int c = a>b?b:a;
+
+    return c>20?4:7;
+
+  }
+
   public void extraConditions(){ // Noncompliant {{The Cognitive Complexity of this method "extraConditions" is 15 which is greater than 0 authorized.}}
 
     if (a && b || c || d) {      // +2

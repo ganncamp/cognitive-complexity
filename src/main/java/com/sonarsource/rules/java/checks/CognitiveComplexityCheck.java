@@ -24,6 +24,7 @@ import org.sonar.plugins.java.api.tree.LabeledStatementTree;
 import org.sonar.plugins.java.api.tree.LambdaExpressionTree;
 import org.sonar.plugins.java.api.tree.MethodTree;
 import org.sonar.plugins.java.api.tree.NewClassTree;
+import org.sonar.plugins.java.api.tree.ReturnStatementTree;
 import org.sonar.plugins.java.api.tree.StatementTree;
 import org.sonar.plugins.java.api.tree.SwitchStatementTree;
 import org.sonar.plugins.java.api.tree.Tree;
@@ -57,6 +58,7 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
 
   private List<Kind> kindsAffectedByNesting = ImmutableList.<Kind>builder()
           .add(IF_STATEMENT)
+          .add(CONDITIONAL_EXPRESSION)  // ternary
           .add(FOR_STATEMENT)
           .add(FOR_EACH_STATEMENT)
           .add(DO_STATEMENT)
@@ -329,6 +331,12 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
             return ((NewClassTree) aet.expression()).classBody();
           }
         }
+        break;
+      case RETURN_STATEMENT:
+        if (((ReturnStatementTree) st).expression() != null) {
+          return ((ReturnStatementTree) st).expression();
+        }
+        break;
     }
 
     return st;
