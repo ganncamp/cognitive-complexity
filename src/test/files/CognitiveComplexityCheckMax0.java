@@ -1,15 +1,33 @@
 class CognitiveComplexityCheck {
 
+  public void extraConditions(){ // Noncompliant {{The Cognitive Complexity of this method "extraConditions" is 15 which is greater than 0 authorized.}}
+
+    if (a && b || c || d) {      // +2
+    }
+    if (a && b || c && d || e) { // +4
+    }
+    if (a || b && c || d && e) { // +4
+    }
+    if (a && b && c || d || e) { // +2
+    }
+
+    if (a) {                     // +1
+    }
+    if (a && b && c && d && e) { // +1
+    }
+    if (a || b || c || d || e) { // +1
+    }
+  }
 
 
-  public void switch2(){ // Noncompliant {{The Cognitive Complexity of this method "switch2" is 15 which is greater than 0 authorized.}}
+  public void switch2(){ // Noncompliant {{The Cognitive Complexity of this method "switch2" is 13 which is greater than 0 authorized.}}
 
     switch(foo){                              //+1
       case 1:
         break;
       case ASSIGNMENT:
         if (lhs.is(Tree.Kind.IDENTIFIER)) {   //+2 (nesting=1)
-          if (a && b && c || d) {             //+6 (nesting=2)
+          if (a && b && c || d) {             //+4 (nesting=2)
 
           }
 
@@ -24,7 +42,7 @@ class CognitiveComplexityCheck {
   }
 
 
-  public void doFilter(ServletRequest servletRequest) { // Noncompliant {{The Cognitive Complexity of this method "doFilter" is 13 which is greater than 0 authorized.}}
+  public void doFilter(ServletRequest servletRequest) { // Noncompliant {{The Cognitive Complexity of this method "doFilter" is 10 which is greater than 0 authorized.}}
 
     if (consumedByStaticFile) {
       return;
@@ -102,14 +120,14 @@ class CognitiveComplexityCheck {
     return result;
   }
 
-  private static String getValueToEval( List<String> strings ) { // Noncompliant {{The Cognitive Complexity of this method "getValueToEval" is 6 which is greater than 0 authorized.}}
+  private static String getValueToEval( List<String> strings ) { // Noncompliant {{The Cognitive Complexity of this method "getValueToEval" is 5 which is greater than 0 authorized.}}
 
-    if (Measure.Level.ERROR.equals(alertLevel) && foo = YELLOW) {
+    if (Measure.Level.ERROR.equals(alertLevel) && foo = YELLOW) {   // 1
       return condition.getErrorThreshold();
-    } else if (Measure.Level.WARN.equals(alertLevel)) {
+    } else if (Measure.Level.WARN.equals(alertLevel)) {             // 1
       return condition.getWarningThreshold();
-    } else {
-      while (true) {
+    } else {                                                        // 1
+      while (true) {                                                // 2 (nesting = 1)
         doTheThing();
       }
       throw new IllegalStateException(alertLevel.toString());

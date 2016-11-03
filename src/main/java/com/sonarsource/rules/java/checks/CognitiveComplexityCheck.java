@@ -245,19 +245,35 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
       return total;
     }
 
-    ExpressionTree tree = expressionTree;
+    ExpressionTree expTree = expressionTree;
     if (expressionTree.is(ASSIGNMENT)) {
-      tree = ((AssignmentExpressionTree) tree).variable();
+      expTree = ((AssignmentExpressionTree) expTree).variable();
     }
 
-    if (tree.is(CONDITIONAL_AND) || tree.is(CONDITIONAL_OR)) {
-      total++;
+    /* top node will be right-most ||
+       its right operand will be (in precedence order):
+        - the || to the right
+        - the && to the right
+        - the symbol/expr to be evaluated
+     */
 
-      for (BinaryExpressionTree binTree = (BinaryExpressionTree) tree;
-           binTree.leftOperand().is(CONDITIONAL_AND) || binTree.leftOperand().is(CONDITIONAL_OR);
-           binTree = (BinaryExpressionTree) binTree.leftOperand()) {
-        total++;
+    if (expTree.is(CONDITIONAL_OR)) {
+
+      while (expTree instanceof BinaryExpressionTree){
+        BinaryExpressionTree binTree = (BinaryExpressionTree) expTree;
+
+        if (binTree.kind() != binTree.leftOperand().kind() && binTree.leftOperand() instanceof BinaryExpressionTree) {
+          total++;
+        }
+        if (binTree.kind() != binTree.rightOperand().kind() && binTree.rightOperand() instanceof BinaryExpressionTree) {
+          total++;
+        }
+        if (binTree.parent().is(CONDITIONAL_OR) && binTree.rightOperand().is(CONDITIONAL_AND)) {
+          total++;
+        }
+        expTree =  binTree.leftOperand();
       }
+
     }
 
     return total;
