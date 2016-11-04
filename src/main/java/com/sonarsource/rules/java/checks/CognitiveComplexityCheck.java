@@ -40,11 +40,11 @@ import static org.sonar.plugins.java.api.tree.Tree.Kind.*;
 
 
 @Rule(
-      key = "CognitiveComplexity",
+      key = "S3776",
       name = "Cognitive Complexity of methods should not be too high",
       description = "[Something profound and moving here...]",
       priority = Priority.CRITICAL,
-      tags = "brainoverload")
+      tags = "brain-overload")
 public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
 
   private static final int DEFAULT_MAX = 10;
@@ -86,8 +86,7 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
     if (total > max) {
       reportIssue(
               method.simpleName(),
-              "The Cognitive Complexity of this method \"" + method.simpleName().name() + "\" is " + total +
-                      " which is greater than " + max + " authorized.",
+              "Refactor this method to reduce its Cognitive Complexity from " + total + " to the " + max + " allowed.",
               flow,
               total - max);
     }
@@ -95,7 +94,7 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
   }
 
   private int countComplexity(List<StatementTree> statements, List<JavaFileScannerContext.Location> flow, int nestingLevel) {
-    if (statements == null || statements.isEmpty()) {
+    if (statements.isEmpty()) {
       return 0;
     }
 
@@ -103,14 +102,15 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
 
     for (StatementTree st : statements) {
 
-      Tree tree = drillIn(st);
+      Tree tree = getSegmentOfInterest(st);
 
       if (kindsAffectedByNesting.contains(tree.kind())) {
-        int hit = 1 + nestingLevel + countExtraConditions(tree);
+        int hit = 1 + nestingLevel;
 
         addSecondaryLocation(flow, tree, hit, nestingLevel);
 
         total += hit;
+        total += countExtraConditions(tree, flow);
         total += countIfElseChains(tree, flow, nestingLevel);
 
       } else {
@@ -124,7 +124,6 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
       } else {
         total += countComplexity(getChildren(tree), flow, nestingLevel + 1);
       }
-
     }
 
     return total;
@@ -141,6 +140,10 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
     switch (st.kind()) {
       case IF_STATEMENT:
         tree = ((IfStatementTree) st).ifKeyword();
+        break;
+      case CONDITIONAL_AND:
+      case CONDITIONAL_OR:
+        tree = ((BinaryExpressionTree) st).operatorToken();
         break;
       case SWITCH_STATEMENT:
         tree = ((SwitchStatementTree) st).switchKeyword();
@@ -164,7 +167,11 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
         tree = ((CatchTree) st).catchKeyword();
         break;
       case BLOCK:
-        tree = ((BlockTree)st).openBraceToken();
+        if (st.parent().is(IF_STATEMENT)) {
+          tree = ((IfStatementTree) st.parent()).elseKeyword();
+        } else {
+          tree = ((BlockTree) st).openBraceToken();
+        }
         break;
     }
 
@@ -209,7 +216,7 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
     if (elseStatement.is(Kind.IF_STATEMENT)) {
       addSecondaryLocation(flow, elseStatement, total, nestingLevel);
 
-      total += countConditions(((IfStatementTree) elseStatement).condition() );
+      total += countConditions(((IfStatementTree) elseStatement).condition(), flow);
       total += countIfElseChains(elseStatement, flow, nestingLevel);
     } else {
       // `else`
@@ -223,32 +230,44 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
     return total;
   }
 
-  private int countExtraConditions(Tree tree) {
+  private int countExtraConditions(Tree tree, List<JavaFileScannerContext.Location> flow) {
     switch (tree.kind()) {
       case WHILE_STATEMENT:
-        return countConditions(((WhileStatementTree) tree).condition());
+        return countConditions(((WhileStatementTree) tree).condition(), flow);
       case FOR_STATEMENT:
-        return countConditions(((ForStatementTree) tree).condition());
+        return countConditions(((ForStatementTree) tree).condition(), flow);
       case DO_STATEMENT:
-        return countConditions(((DoWhileStatementTree) tree).condition());
+        return countConditions(((DoWhileStatementTree) tree).condition(), flow);
       case IF_STATEMENT:
-        return countConditions(((IfStatementTree) tree).condition());
+        return countConditions(((IfStatementTree) tree).condition(), flow);
       default:
         return 0;
     }
-
   }
 
-  private int countConditions(ExpressionTree expressionTree) {
-    int total = 0;
+  /**
+   * Increment for each non-like operator. So:
+   *   a           // +0
+   *   a && b      // +1
+   *   a && b && c // +1
+   *   a && b || c // +2
+   *
+   * @param expressionTree
+   * @return
+   */
+  private int countConditions(ExpressionTree expressionTree, List<JavaFileScannerContext.Location> flow) {
 
     if (expressionTree == null) {
-      return total;
+      return 0;
     }
 
     ExpressionTree expTree = expressionTree;
     if (expressionTree.is(ASSIGNMENT)) {
       expTree = ((AssignmentExpressionTree) expTree).variable();
+    }
+
+    if (! isLogicalOp(expTree)) {
+      return 0;
     }
 
     /* top node will be right-most ||
@@ -258,26 +277,55 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
         - the symbol/expr to be evaluated
      */
 
-    if (expTree.is(CONDITIONAL_OR)) {
+    int total = 1;
+    BinaryExpressionTree binTree = scootLeft((BinaryExpressionTree) expTree);
+    addSecondaryLocation(flow, binTree, 1, 0);
 
-      while (expTree instanceof BinaryExpressionTree){
-        BinaryExpressionTree binTree = (BinaryExpressionTree) expTree;
+    while (expTree instanceof BinaryExpressionTree){
+      binTree = scootLeft((BinaryExpressionTree) expTree);
 
-        if (binTree.kind() != binTree.leftOperand().kind() && binTree.leftOperand() instanceof BinaryExpressionTree) {
-          total++;
-        }
-        if (binTree.kind() != binTree.rightOperand().kind() && binTree.rightOperand() instanceof BinaryExpressionTree) {
-          total++;
-        }
-        if (binTree.parent().is(CONDITIONAL_OR) && binTree.rightOperand().is(CONDITIONAL_AND)) {
-          total++;
-        }
-        expTree =  binTree.leftOperand();
+      ExpressionTree left = binTree.leftOperand();
+      ExpressionTree right = binTree.rightOperand();
+
+      if (binTree.kind() != left.kind() && isLogicalOp(left)) {
+        total++;
+        addSecondaryLocation(flow, binTree, 1, 0);
       }
-
+      if (binTree.kind() != right.kind() && isLogicalOp(right)) {
+        total++;
+        addSecondaryLocation(flow, binTree, 1, 0);
+      }
+      if (binTree.parent().is(CONDITIONAL_OR) && right.is(CONDITIONAL_AND)) {
+        total++;
+        addSecondaryLocation(flow, binTree, 1, 0);
+      }
+      expTree =  binTree.leftOperand();
     }
 
     return total;
+  }
+
+  private BinaryExpressionTree scootLeft(BinaryExpressionTree binaryExpressionTree) {
+
+    BinaryExpressionTree binTree = binaryExpressionTree;
+
+    if (binTree.is(CONDITIONAL_AND)) {
+      while (binTree.leftOperand().is(CONDITIONAL_AND)) {
+        binTree = (BinaryExpressionTree) binTree.leftOperand();
+      }
+    } else if (binTree.is(CONDITIONAL_OR)) {
+      ExpressionTree left = binTree.leftOperand();
+      while (left.is(CONDITIONAL_OR) && ! isLogicalOp(((BinaryExpressionTree)left).rightOperand())) {
+        binTree = (BinaryExpressionTree) binTree.leftOperand();
+        left = binTree.leftOperand();
+      }
+    }
+    return binTree;
+  }
+
+
+  private boolean isLogicalOp(ExpressionTree expTree) {
+    return expTree.is(CONDITIONAL_AND) || expTree.is(CONDITIONAL_OR);
   }
 
   private int countTryChains(Tree st, List<JavaFileScannerContext.Location> flow, int nestingLevel) {
@@ -313,7 +361,7 @@ public class CognitiveComplexityCheck extends IssuableSubscriptionVisitor{
     return 0;
   }
 
-  private Tree drillIn(StatementTree st) {
+  private Tree getSegmentOfInterest(StatementTree st) {
     switch (st.kind()) {
       case LABELED_STATEMENT:
         return ((LabeledStatementTree)st).statement();

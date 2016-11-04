@@ -1,7 +1,7 @@
 class CognitiveComplexityCheck {
 
 
-  public int ternaryOp(int a, int b) { // Noncompliant {{The Cognitive Complexity of this method "ternaryOp" is 2 which is greater than 0 authorized.}}
+  public int ternaryOp(int a, int b) { // Noncompliant {{Refactor this method to reduce its Cognitive Complexity from 2 to the 0 allowed.}}
 
     int c = a>b?b:a;
 
@@ -9,34 +9,34 @@ class CognitiveComplexityCheck {
 
   }
 
-  public void extraConditions(){ // Noncompliant {{The Cognitive Complexity of this method "extraConditions" is 15 which is greater than 0 authorized.}}
+  public void extraConditions(){ // Noncompliant {{Refactor this method to reduce its Cognitive Complexity from 21 to the 0 allowed.}}
 
-    if (a && b || c || d) {      // +2
+    if (a && b || c || d) {      // +3
     }
-    if (a && b || c && d || e) { // +4
+    if (a && b || c && d || e) { // +5
     }
-    if (a || b && c || d && e) { // +4
+    if (a || b && c || d && e) { // +5
     }
-    if (a && b && c || d || e) { // +2
+    if (a && b && c || d || e) { // +3
     }
 
     if (a) {                     // +1
     }
-    if (a && b && c && d && e) { // +1
+    if (a && b && c && d && e) { // +2
     }
-    if (a || b || c || d || e) { // +1
+    if (a || b || c || d || e) { // +2
     }
   }
 
 
-  public void switch2(){ // Noncompliant {{The Cognitive Complexity of this method "switch2" is 13 which is greater than 0 authorized.}}
+  public void switch2(){ // Noncompliant {{Refactor this method to reduce its Cognitive Complexity from 14 to the 0 allowed.}}
 
     switch(foo){                              //+1
       case 1:
         break;
       case ASSIGNMENT:
         if (lhs.is(Tree.Kind.IDENTIFIER)) {   //+2 (nesting=1)
-          if (a && b && c || d) {             //+4 (nesting=2)
+          if (a && b && c || d) {             //+5 (nesting=2)
 
           }
 
@@ -51,44 +51,44 @@ class CognitiveComplexityCheck {
   }
 
 
-  public void doFilter(ServletRequest servletRequest) { // Noncompliant {{The Cognitive Complexity of this method "doFilter" is 10 which is greater than 0 authorized.}}
+  public void doFilter(ServletRequest servletRequest) { // Noncompliant {{Refactor this method to reduce its Cognitive Complexity from 13 to the 0 allowed.}}
 
-    if (consumedByStaticFile) {
+    if (consumedByStaticFile) {                             // 1
       return;
     }
 
     try {
 
-    } catch (HaltException halt) {
+    } catch (HaltException halt) {                          // 1
 
-    } catch (Exception generalException) {
+    } catch (Exception generalException) {                  // 1
 
     }
 
-    if (body.notSet() && responseWrapper.isRedirected()) {
+    if (body.notSet() && responseWrapper.isRedirected()) {  // 2
       body.set("");
     }
 
-    if (body.notSet() && hasOtherHandlers) {
-      if (servletRequest instanceof HttpRequestWrapper) {
+    if (body.notSet() && hasOtherHandlers) {                // 2
+      if (servletRequest instanceof HttpRequestWrapper) {   // 2 (nesting=1)
         ((HttpRequestWrapper) servletRequest).notConsumed(true);
         return;
       }
     }
 
-    if (body.notSet() && !externalContainer) {
+    if (body.notSet() && !externalContainer) {               // 2
       LOG.info("The requested route [" + uri + "] has not been mapped in Spark");
     }
 
-    if (body.isSet()) {
+    if (body.isSet()) {                                      // 1
       body.serializeTo(httpResponse, serializerChain, httpRequest);
-    } else if (chain != null) {
+    } else if (chain != null) {                              // 1
       chain.doFilter(httpRequest, httpResponse);
     }
   }
 
 
-  public final T to(U u) { // Noncompliant {{The Cognitive Complexity of this method "to" is 7 which is greater than 0 authorized.}}
+  public final T to(U u) { // Noncompliant {{Refactor this method to reduce its Cognitive Complexity from 7 to the 0 allowed.}}
 
     for (int ctr=0; ctr<args.length; ctr++)
       if (args[ctr].equals("-debug"))
@@ -113,7 +113,7 @@ class CognitiveComplexityCheck {
 
   }
 
-  String bulkActivate(Iterator<String> rules) { // Noncompliant {{The Cognitive Complexity of this method "bulkActivate" is 6 which is greater than 0 authorized.}}
+  String bulkActivate(Iterator<String> rules) { // Noncompliant {{Refactor this method to reduce its Cognitive Complexity from 6 to the 0 allowed.}}
 
     try {
       while (rules.hasNext()) {  // +1
@@ -129,7 +129,7 @@ class CognitiveComplexityCheck {
     return result;
   }
 
-  private static String getValueToEval( List<String> strings ) { // Noncompliant {{The Cognitive Complexity of this method "getValueToEval" is 5 which is greater than 0 authorized.}}
+  private static String getValueToEval( List<String> strings ) { // Noncompliant {{Refactor this method to reduce its Cognitive Complexity from 6 to the 0 allowed.}}
 
     if (Measure.Level.ERROR.equals(alertLevel) && foo = YELLOW) {   // 1
       return condition.getErrorThreshold();
@@ -143,7 +143,7 @@ class CognitiveComplexityCheck {
     }
   }
 
-  boolean isPalindrome(char [] s, int len) { // Noncompliant {{The Cognitive Complexity of this method "isPalindrome" is 2 which is greater than 0 authorized.}}
+  boolean isPalindrome(char [] s, int len) { // Noncompliant {{Refactor this method to reduce its Cognitive Complexity from 2 to the 0 allowed.}}
 
     if(len < 2)
       return true;
@@ -151,28 +151,28 @@ class CognitiveComplexityCheck {
       return s[0] == s[len-1] && isPalindrome(s[1], len-2); // TODO find recursion
   }
 
-  void extraConditions() { // Noncompliant {{The Cognitive Complexity of this method "extraConditions" is 11 which is greater than 0 authorized.}}
+  void extraConditions() { // Noncompliant {{Refactor this method to reduce its Cognitive Complexity from 10 to the 0 allowed.}}
 
-    if (a < b) {
+    if (a < b) {                // 1
       doTheThing();
     }
 
-    if (a == b || c > 3 || b-7 == c) {
-      while (a-- > 0 && b++ < 10) {
+    if (a == b || c > 3 || b-7 == c) {  // 2
+      while (a-- > 0 && b++ < 10) {     // 3 (nesting = 1)
         doTheOtherThing();
       }
     }
 
-    do {
+    do {                                // 1
 
-    } while (a-- > 0 || b != YELLOW);
+    } while (a-- > 0 || b != YELLOW);   // 1 (for ||)
 
-    for (int i = 0; i < 10 && j > 20; i++) {
+    for (int i = 0; i < 10 && j > 20; i++) {  // 2
       doSomethingElse();
     }
   }
 
-  public static void main (String [] args) { // Noncompliant {{The Cognitive Complexity of this method "main" is 4 which is greater than 0 authorized.}}
+  public static void main (String [] args) { // Noncompliant {{Refactor this method to reduce its Cognitive Complexity from 4 to the 0 allowed.}}
 
     Runnable r = () -> {
       if (condition) {
@@ -191,7 +191,7 @@ class CognitiveComplexityCheck {
     };
   }
 
-  int sumOfNonPrimes(int limit) { // Noncompliant {{The Cognitive Complexity of this method "sumOfNonPrimes" is 9 which is greater than 0 authorized.}}
+  int sumOfNonPrimes(int limit) { // Noncompliant {{Refactor this method to reduce its Cognitive Complexity from 9 to the 0 allowed.}}
 
     int sum = 0;
     OUTER: for (int i = 0; i < limit; ++i) {
@@ -208,7 +208,7 @@ class CognitiveComplexityCheck {
     return sum;
   }
 
-  String getWeight(int i){ // Noncompliant {{The Cognitive Complexity of this method "getWeight" is 4 which is greater than 0 authorized.}}
+  String getWeight(int i){ // Noncompliant {{Refactor this method to reduce its Cognitive Complexity from 4 to the 0 allowed.}}
 
     if (i <=0) {
       return "no weight";
@@ -225,7 +225,7 @@ class CognitiveComplexityCheck {
     return "very heavy";
   }
 
-  public static HighlightingType toProtocolType(TypeOfText textType) { // Noncompliant {{The Cognitive Complexity of this method "toProtocolType" is 1 which is greater than 0 authorized.}}
+  public static HighlightingType toProtocolType(TypeOfText textType) { // Noncompliant {{Refactor this method to reduce its Cognitive Complexity from 1 to the 0 allowed.}}
 
     switch (textType) {
       case ANNOTATION: {
