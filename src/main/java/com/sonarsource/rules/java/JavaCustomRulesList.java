@@ -23,6 +23,7 @@ public final class JavaCustomRulesList {
   }
 
   public static List<Class<? extends JavaCheck>> getJavaTestChecks() {
+    // foo
     return ImmutableList.<Class<? extends JavaCheck>>builder()
       // add HERE rules targeting test files
       .build();
